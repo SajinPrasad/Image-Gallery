@@ -1,5 +1,6 @@
 from rest_framework.serializers import ModelSerializer, CharField
 from rest_framework.exceptions import ValidationError
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .models import CustomUser
 
@@ -11,6 +12,16 @@ def validate_email(email):
         return True
     except ValueError:
         return False
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        user = self.user  # The authenticated user
+        # Add additional user details to the response
+        data["username"] = user.username
+        data["email"] = user.email
+        return data
 
 
 class UserRegistrationSerializer(ModelSerializer):
@@ -33,7 +44,7 @@ class UserRegistrationSerializer(ModelSerializer):
 
         if not validate_email(data["email"]):
             raise ValidationError({"email": "Invalid email."})
-        
+
         if CustomUser.objects.filter(email=data["email"]).exists():
             raise ValidationError({"email": "User with email id exists."})
 
@@ -60,3 +71,38 @@ class UserRegistrationSerializer(ModelSerializer):
             phone_number=validated_data["phone_number"],
         )
         return user
+
+
+class ResetPasswordSerializer(ModelSerializer):
+    current_password = CharField(required=True, write_only=True)
+    confirm_password = CharField(required=True, write_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ["current_password", "confirm_password", "password"]
+        extra_kwargs = {"password": {"write_only": True}}
+
+    def validate(self, data):
+        current_password = data["current_password"]
+        password = data["password"]
+        confirm_password = data["confirm_password"]
+        user = self.context.get("request").user
+
+        if not user.check_password(current_password):
+            raise ValidationError({"current_password": "Invalid password"})
+
+        if user.check_password(password):
+            raise ValidationError(
+                {"password": "The password cannot be the same as previous password"}
+            )
+
+        if password != confirm_password:
+            raise ValidationError({"password": "Passwords does not matching"})
+
+        return data
+
+    def update(self, instance, validated_data):
+        new_password = validated_data["password"]
+        instance.set_password(new_password)
+        instance.save()  # Save changes to the user instance
+        return instance
