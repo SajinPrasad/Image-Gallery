@@ -39,11 +39,14 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     #Custom apps
+    "corsheaders",
+    "rest_framework",
     "users",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -118,6 +121,17 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_HEADERS = [
+    "content-type",
+    "authorization",
+    "x-csrftoken",
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
