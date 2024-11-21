@@ -1,13 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Mail, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { userLoginService } from "../../services/userServices/userServices";
 import { setToken } from "../../features/auth/authSlice";
 import { setUser } from "../../features/auth/userSlice";
 
 const LoginForm = () => {
+  const { accessToken } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (accessToken) {
+      navigate("/home");
+    }
+  }, []);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -17,9 +27,6 @@ const LoginForm = () => {
     email: "",
     password: "",
   });
-
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
