@@ -1,10 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Lock, Mail, Phone } from "lucide-react";
 
 import { userRegistrationService } from "../../services/userServices/userServices";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const RegistrationForm = () => {
+  const { accessToken } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (accessToken) {
+      navigate("/home");
+    }
+  }, []);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -18,8 +28,6 @@ const RegistrationForm = () => {
     confirmPassword: "",
     phoneNumber: "",
   });
-
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;

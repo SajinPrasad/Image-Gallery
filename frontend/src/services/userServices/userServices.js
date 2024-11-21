@@ -1,4 +1,4 @@
-import { publicAxiosInstance } from "../../api/api";
+import privateAxiosInstance, { publicAxiosInstance } from "../../api/api";
 
 export const userRegistrationService = async (formData) => {
   const { email, password, confirmPassword, phoneNumber } = formData;
@@ -27,5 +27,20 @@ export const userLoginService = async (formData) => {
     }
   } catch (errors) {
     console.log(errors);
+  }
+};
+
+export const userLogoutService = async (refreshToken) => {
+  try {
+    const response = await privateAxiosInstance.post(`/logout/`, {
+      refresh: refreshToken,
+    });
+
+    // No data is expected, but just in case the backend returns a success message
+    if (response.status >= 200 && response.status < 301) {
+      return response.data;
+    }
+  } catch (error) {
+    console.log(error)
   }
 };
