@@ -86,7 +86,7 @@ class ResetPasswordSerializer(ModelSerializer):
         current_password = data["current_password"]
         password = data["password"]
         confirm_password = data["confirm_password"]
-        user = self.context.get("request").user
+        user = self.instance
 
         if not user.check_password(current_password):
             raise ValidationError({"current_password": "Invalid password"})

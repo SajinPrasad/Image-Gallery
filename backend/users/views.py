@@ -6,6 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_205_RESET_CONTENT, HTTP_400_BAD_REQUEST
+from rest_framework.exceptions import ValidationError
 
 from .serializers import (
     UserRegistrationSerializer,
@@ -47,11 +48,18 @@ class LogoutView(APIView):
 
 
 class ResetPasswordView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def put(self, request, *args, **kwargs):
+        email = request.data["email"]
+
+        try:
+            instance = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise ValidationError("User not found.")
+
         serializer = ResetPasswordSerializer(
-            instance=request.user, data=request.data, context={"request": request}
+            instance=instance, data=request.data, context={"request": request}
         )
 
         if serializer.is_valid():
