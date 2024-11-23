@@ -8,6 +8,7 @@ import Home from "./components/Gallery/Home";
 import PrivateRoute from "./components/Common/PrivateRoute";
 import PasswordResetForm from "./components/Auth/PasswordResetForm";
 import ImageUploadPage from "./pages/Gallery/ImageUploadPage";
+import ImageReorder from "./components/Gallery/ImageReorder";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route element={<PrivateRoute />}>
           <Route path="/home" element={<Home />} />
           <Route path="/upload" element={<ImageUploadPage />} />
+          <Route path="/reorder" element={<ImageReorder />} />
         </Route>
       </Routes>
     </>

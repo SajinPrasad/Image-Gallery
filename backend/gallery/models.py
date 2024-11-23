@@ -18,9 +18,6 @@ class Image(models.Model):
         ordering = ["order"]
 
     @classmethod
-    def get_latest_order(cls):
-        """
-        Returns the highest order value among all images in the database.
-        """
-        latest_image = cls.objects.order_by("-order").first()
+    def get_latest_order(cls, user):
+        latest_image = cls.objects.filter(user=user).order_by("-order").first()
         return latest_image.order if latest_image else 0
