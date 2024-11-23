@@ -50,7 +50,7 @@ const ImageReorder = () => {
       {isReordered && (
         <button
           onClick={handleSubmit}
-          className="bg-blue-700 py-1 rounded text-white px-3 my-2 font-semibold"
+          className="bg-blue-500 py-2 mx-5 rounded text-xl text-white px-4 my-2 font-semibold"
         >
           Submit
         </button>
@@ -62,7 +62,7 @@ const ImageReorder = () => {
             <div
               {...provided.droppableProps}
               ref={provided.innerRef}
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-4"
+              className="grid grid-cols-3 gap-4 p-4"
             >
               {images.map((image, index) => (
                 <Draggable
@@ -75,16 +75,13 @@ const ImageReorder = () => {
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      className="relative bg-white border border-gray-300 rounded p-2 shadow-md group"
+                      className="bg-white border border-gray-300 rounded p-2 shadow-md"
                     >
                       <img
                         src={image.image}
                         alt={image.title}
                         className="w-full h-40 object-cover rounded"
                       />
-                      <div className="absolute top-2 left-2 bg-gray-700 text-white text-sm rounded px-2 py-1">
-                        Drag
-                      </div>
                       <p className="mt-2 text-center text-sm font-medium text-gray-800">
                         {image.title}
                       </p>

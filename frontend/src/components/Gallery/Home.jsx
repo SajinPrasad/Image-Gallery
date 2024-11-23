@@ -47,8 +47,6 @@ const Home = () => {
     }
   };
 
-  console.log("Images: ", images)
-
   const handleEditPreviewOpen = (image) => {
     setPreviewImage(image);
     setIsImageEditing(true);
@@ -92,7 +90,7 @@ const Home = () => {
         </p>
         <p
           onClick={handleNavigate}
-          className="cursor-pointer text-start text-gray-700 font-semibold"
+          className="cursor-pointer my-3 mx-4 px-3 border inline-block rounded border-gray-200 text-start text-gray-700 font-semibold"
         >
           Click to reorder images
         </p>
