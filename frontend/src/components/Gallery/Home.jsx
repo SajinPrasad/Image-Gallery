@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { Eye, Edit, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 import Header from "../Common/Header";
 import {
   deleteImageService,
@@ -6,13 +9,17 @@ import {
   updateImageService,
 } from "../../services/galleryServices/galleryServices";
 import ImagePreview from "./ImagePreview";
-import { Eye, Edit, Trash2 } from "lucide-react";
 
 const Home = () => {
   const [images, setImages] = useState([]);
   const [isOpenPreview, setIsOpenPrevew] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
   const [isImageEditing, setIsImageEditing] = useState(false);
+  const navigate = useNavigate();
+
+  const handleNavigate = () => {
+    navigate("/reorder", { state: { images } });
+  };
 
   async function fetchImages() {
     const fetchedImages = await getImagesService();
@@ -80,6 +87,12 @@ const Home = () => {
       <div className="pt-16">
         <p className="text-center text-blue-950 font-bold text-xl mb-6">
           This is Home
+        </p>
+        <p
+          onClick={handleNavigate}
+          className="cursor-pointer text-start text-gray-700 font-semibold"
+        >
+          Click to reorder images
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-4">
           {images.map((image) => (

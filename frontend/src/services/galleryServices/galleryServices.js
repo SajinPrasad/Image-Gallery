@@ -2,9 +2,6 @@ import { toast } from "react-toastify";
 import privateAxiosInstance from "../../api/api";
 
 export const uploadImageService = async (images, titles) => {
-  console.log("Calling the service");
-  console.log("Images: ", images);
-  console.log("Titles: ", titles);
   const formData = new FormData();
 
   images.forEach((image, index) => {
@@ -102,5 +99,26 @@ export const updateImageService = async (formData, imageId) => {
     }
   } catch (error) {
     console.error(error);
+  }
+};
+
+export const orderUpdateService = async (formData) => {
+  try {
+    const response = await privateAxiosInstance.patch(
+      `/order-change/`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.status >= 200 && response.status < 301) {
+      toast.success("Updated order.");
+      return response.data;
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
