@@ -7,6 +7,7 @@ import LoginForm from "./components/Auth/LoginForm";
 import Home from "./components/Gallery/Home";
 import PrivateRoute from "./components/Common/PrivateRoute";
 import PasswordResetForm from "./components/Auth/PasswordResetForm";
+import ImageUploadPage from "./pages/Gallery/ImageUploadPage";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/password-reset" element={<PasswordResetForm />} />
         <Route element={<PrivateRoute />}>
           <Route path="/home" element={<Home />} />
+          <Route path="/upload" element={<ImageUploadPage />} />
         </Route>
       </Routes>
     </>
