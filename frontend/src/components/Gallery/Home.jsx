@@ -47,6 +47,8 @@ const Home = () => {
     }
   };
 
+  console.log("Images: ", images)
+
   const handleEditPreviewOpen = (image) => {
     setPreviewImage(image);
     setIsImageEditing(true);

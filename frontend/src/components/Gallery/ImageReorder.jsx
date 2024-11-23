@@ -28,30 +28,18 @@ const ImageReorder = () => {
   };
 
   const handleSubmit = async () => {
-    const updatedImages = images.filter((image, index) => {
-      const originalImage = initialImages.find((img) => img.id === image.id);
-      return originalImage && originalImage.order !== index + 1; // Compare old and new order
-    });
-  
-    const formattedData = updatedImages.map((image, index) => ({
+    const reorderedData = images.map((image, index) => ({
       id: image.id,
-      order: index + 1, // New order position
+      order: index + 1,
     }));
-  
-    try {
-      const orderUpdated = await orderUpdateService({ metadata: formattedData }); // Send JSON data
-  
-      if (orderUpdated) {
-        navigate("/home");
-      }
-    } catch (error) {
-      console.error(
-        "Error updating order:",
-        error.response?.data || error.message
-      );
+
+    const orderUpdated = await orderUpdateService({ orders: reorderedData });
+
+    if (orderUpdated) {
+      setIsReordered(false);
+      navigate("/home");
     }
   };
-  
 
   return (
     <div className="pt-16">
