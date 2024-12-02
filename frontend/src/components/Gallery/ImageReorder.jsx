@@ -11,8 +11,6 @@ const ImageReorder = () => {
   const [isReordered, setIsReordered] = useState(false);
   const navigate = useNavigate();
 
-  console.log("PRevious images: ", images);
-
   const handleDragEnd = (result) => {
     const { source, destination } = result;
 
@@ -28,10 +26,14 @@ const ImageReorder = () => {
   };
 
   const handleSubmit = async () => {
-    const reorderedData = images.map((image, index) => ({
-      id: image.id,
-      order: index + 1,
-    }));
+
+    const reorderedData = images.reduce((result, image, index) => {
+      const newOrder = index + 1;
+      if (image.order !== newOrder) {
+        result.push({ id: image.id, order: newOrder });
+      }
+      return result;
+    }, []);
 
     const orderUpdated = await orderUpdateService({ orders: reorderedData });
 
