@@ -4,9 +4,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
+from django.db import transaction
 
 from .models import Image
-from .serializers import ImageSerializer
+from .serializers import (
+    ImageSerializer,
+    ImageOrderChangeSerializer,
+    ImageEditSerializer,
+)
 
 # Create your views here.
 
@@ -20,7 +25,7 @@ class ImageUploadView(APIView):
         orders = request.data.getlist("orders", [])
 
         if len(images) != len(titles):
-            raise ValidationError("Some fields are missing please verify.")
+            raise ValidationError("Some fields are missing, please verify.")
 
         if orders and len(orders) != len(images):
             raise ValidationError("Orders list length must match images list length.")
@@ -31,27 +36,34 @@ class ImageUploadView(APIView):
         # Get the latest order value if no orders are provided
         latest_order = Image.get_latest_order(request.user)
 
-        for index, (image, title) in enumerate(zip(images, titles)):
-            order = orders[index] if orders else latest_order + 1
-            latest_order = order
+        # Start a transaction
+        try:
+            with transaction.atomic():
+                for index, (image, title) in enumerate(zip(images, titles)):
+                    order = orders[index] if orders else latest_order + 1
+                    latest_order = order
 
-            serializer = ImageSerializer(
-                data={
-                    "user": request.user.id,
-                    "title": title,
-                    "image": image,
-                    "order": latest_order,
-                }
+                    serializer = ImageSerializer(
+                        data={
+                            "user": request.user.id,
+                            "title": title,
+                            "image": image,
+                            "order": latest_order,
+                        }
+                    )
+
+                    if serializer.is_valid():
+                        serializer.save()
+                    else:
+                        raise ValidationError(serializer.errors)
+
+            return Response(
+                {"message": "Images uploaded successfully!"},
+                status=status.HTTP_201_CREATED,
             )
-
-            if serializer.is_valid():
-                serializer.save()
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(
-            {"message": "Images uploaded successfully!"}, status=status.HTTP_201_CREATED
-        )
+        except ValidationError as e:
+            # Rollback the transaction on error
+            return Response({"errors": e.detail}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ListImageView(ListAPIView):
@@ -76,7 +88,7 @@ class DeleteImageView(DestroyAPIView):
 
 class UpdateImageView(UpdateAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = ImageSerializer
+    serializer_class = ImageEditSerializer
 
     def get_queryset(self):
         user = self.request.user
@@ -88,6 +100,7 @@ class OrderChangeView(APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, *args, **kwargs):
+        user = request.user
         orders = request.data.get("orders", [])
 
         updated_images = []
@@ -95,12 +108,14 @@ class OrderChangeView(APIView):
 
         for order in orders:
             try:
-                instance = Image.objects.get(id=order["id"])
+                instance = Image.objects.get(id=order["id"], user=user)
             except Image.DoesNotExist:
                 errors.append({"id": order["id"], "error": "Image not found"})
                 continue  # Skip this order if the Image does not exist
 
-            serializer = ImageSerializer(data=order, instance=instance, partial=True)
+            serializer = ImageOrderChangeSerializer(
+                data=order, instance=instance, partial=True
+            )
 
             if serializer.is_valid():
                 serializer.save()

@@ -22,28 +22,28 @@ export const uploadImageService = async (images, titles) => {
     }
   } catch (error) {
     if (error.response) {
-      // The request was made, and the server responded with a status code outside 2xx
-      if (error.response.status >= 500) {
+      const { data, status } = error.response;
+  
+      if (status >= 500) {
         toast.error("Server error. Please try again later.");
-      } else if (error.response.status === 400) {
-        // Validation errors or bad request
-        const { data } = error.response;
-
-        if (data) {
-          // Toast error messages, ensuring robust parsing
-          Object.values(data).forEach((messages) => {
-            if (Array.isArray(messages)) {
-              messages.forEach((msg) => toast.error(msg)); // Handle array of errors
-            } else if (typeof messages === "string") {
-              toast.error(messages); // Handle single string error
-            }
-          });
-        }
+      } else if (status === 400 && data) {
+        const handleErrors = (errors) => {
+          if (typeof errors === "string") {
+            toast.error(errors);
+          } else if (Array.isArray(errors)) {
+            errors.forEach((err) => handleErrors(err));
+          } else if (typeof errors === "object") {
+            Object.entries(errors).forEach(([key, value]) => handleErrors(value));
+          }
+        };
+  
+        handleErrors(data);
       }
     } else {
       toast.error("An unexpected error occurred");
     }
   }
+  
 };
 
 export const getImagesService = async () => {

@@ -19,16 +19,20 @@ const RegistrationForm = () => {
   // Validation schema using Yup
   const validationSchema = Yup.object({
     email: Yup.string()
-      .email("Enter a valid email")
+      .email("Enter a valid email address")
       .required("Email is required"),
     password: Yup.string()
-      .min(6, "Password must be at least 6 characters")
+      .min(6, "Password must be at least 6 characters long")
+      .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+      .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .matches(/\d/, "Password must contain at least one number")
       .required("Password is required"),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords do not match")
       .required("Please confirm your password"),
     phoneNumber: Yup.string()
-      .matches(/^\d{10}$/, "Phone number must be 10 digits")
+      .matches(/^[1-9]\d{9}$/, "Phone number must be a valid 10-digit number starting with a non-zero")
+      .notOneOf(["0000000000", "1234567890"], "Enter a valid phone number")
       .required("Phone number is required"),
   });
 

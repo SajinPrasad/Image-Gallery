@@ -38,9 +38,33 @@ class UserRegistrationSerializer(ModelSerializer):
         }
 
     def validate(self, data):
+        password = data["password"]
+        password2 = data["password2"]
+
         # Check if passwords match
-        if data["password"] != data["password2"]:
+        if password != password2:
             raise ValidationError({"password": "Passwords do not match."})
+
+        # Check password length
+        if len(password) < 6:
+            raise ValidationError(
+                {"password": "Password must be at least 6 characters long."}
+            )
+
+        if not any(char.isupper() for char in password):
+            raise ValidationError(
+                {"password": "Password must contain at least one uppercase letter."}
+            )
+
+        if not any(char.islower() for char in password):
+            raise ValidationError(
+                {"password": "Password must contain at least one uppercase letter."}
+            )
+
+        if not any(char.isdigit() for char in password):
+            raise ValidationError(
+                {"password": "Password must contain at least one numeric digit."}
+            )
 
         if not validate_email(data["email"]):
             raise ValidationError({"email": "Invalid email."})
